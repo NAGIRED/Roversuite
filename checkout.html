@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout History</title>
+  <style>
+    body { font-family: Arial; background: #f5f5f5; padding: 30px; }
+    .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h1 { color: #2c3e50; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ccc; }
+    th { background: #2980b9; color: white; }
+    tr:hover { background: #f1f1f1; }
+    .back-btn { margin-top: 20px; display: inline-block; padding: 10px 15px; background: #2980b9; color: white; border: none; border-radius: 4px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Checkout History</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Room</th>
+          <th>Guest</th>
+          <th>Mobile</th>
+          <th>Tariff</th>
+          <th>Paid</th>
+          <th>Balance</th>
+          <th>Payment Mode</th>
+          <th>Company</th>
+          <th>GST</th>
+          <th>Check-In Time</th>
+          <th>Check-Out Time</th>
+        </tr>
+      </thead>
+      <tbody id="recordList"></tbody>
+    </table>
+    <button class="back-btn" onclick="goBack()">Back to Dashboard</button>
+  </div>
+
+  <script>
+    function goBack() {
+      window.location.href = "checkin.html";
+    }
+
+    const records = JSON.parse(localStorage.getItem("checkoutRecords")) || [];
+    const tbody = document.getElementById("recordList");
+
+    if (records.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;">No checkout records found.</td></tr>';
+    } else {
+      tbody.innerHTML = records.map(rec => {
+        const total = parseFloat(rec.tariff) || 0;
+        const paid = rec.payment?.amount || 0;
+        const balance = total - paid;
+        return `
+          <tr>
+            <td>${rec.room}</td>
+            <td>${rec.guestName}</td>
+            <td>${rec.mobile}</td>
+            <td>₹${total}</td>
+            <td>₹${paid}</td>
+            <td>₹${balance}</td>
+            <td>${rec.payment?.mode || '-'}</td>
+            <td>${rec.company?.name || '-'}</td>
+            <td>${rec.company?.gst || '-'}</td>
+            <td>${rec.checkinTime}</td>
+            <td>${rec.checkoutTime}</td>
+          </tr>`;
+      }).join("");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Room Details</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      padding: 30px;
+    }
+
+    .card {
+      background: white;
+      max-width: 600px;
+      margin: auto;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #2c3e50;
+    }
+
+    .info {
+      margin-bottom: 10px;
+    }
+
+    .label {
+      font-weight: bold;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 10px 5px 0 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .payment-btn {
+      background-color: #27ae60;
+    }
+
+    .company-btn {
+      background-color: #2980b9;
+    }
+     button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background-color: #2980b9;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #1c5980;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Room Details</h2>
+    <div id="roomInfo"></div>
+
+    <button class="payment-btn" onclick="addPayment()">💰 Add Payment</button>
+    <button class="company-btn" onclick="updateCompany()">🏢 Update Company</button>
+    <button onclick="checkOutRoom()">🧾 Check-Out</button>
+
+     <button onclick="back()">back</button>
+  </div>
+
+  <script>
+      function back(){
+      window.location.href="checkin.html";
+    }
+    const params = new URLSearchParams(window.location.search);
+    const room = params.get("room");
+
+    const rooms = JSON.parse(localStorage.getItem("rooms")) || {};
+    const companyDetails = JSON.parse(localStorage.getItem("companyDetails")) || {};
+
+    if (!room || !rooms[room]) {
+      alert("Room not found.");
+    } else {
+      renderRoomDetails();
+    }
+
+    function renderRoomDetails() {
+      const data = rooms[room];
+      const total = parseFloat(data.tariff) || 0;
+      const paid = data.payment?.amount || 0;
+      const balance = total - paid;
+
+      document.getElementById("roomInfo").innerHTML = `
+        <div class="info"><span class="label">Room:</span> ${room}</div>
+        <div class="info"><span class="label">Guest:</span> ${data.guestName}</div>
+        <div class="info"><span class="label">Mobile:</span> ${data.mobile}</div>
+        <div class="info"><span class="label">Address:</span> ${data.address}</div>
+        <div class="info"><span class="label">Persons:</span> ${data.persons}</div>
+        <div class="info"><span class="label">Tariff:</span> ₹${total}</div>
+        <div class="info"><span class="label">Check-In:</span> ${data.checkinTime}</div>
+        <div class="info"><span class="label">Company:</span> ${data.company?.name || '-'}</div>
+        <div class="info"><span class="label">GST:</span> ${data.company?.gst || '-'}</div>
+        <div class="info"><span class="label">Paid:</span> ₹${paid}</div>
+        <div class="info"><span class="label">Balance:</span> ₹${balance}</div>
+        <div class="info"><span class="label">Payment Mode:</span> ${data.payment?.mode || '-'}</div>
+      `;
+    }
+
+    function addPayment() {
+      const data = rooms[room];
+      const totalTariff = parseFloat(data.tariff) || 0;
+      const paidSoFar = data.payment?.amount || 0;
+      const balance = totalTariff - paidSoFar;
+
+      const amount = prompt(`Enter payment amount (Balance: ₹${balance}):`);
+      if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+        alert("Invalid amount.");
+        return;
+      }
+
+      const mode = prompt("Enter payment mode (Cash, Card, UPI, Bank):");
+      if (!mode) {
+        alert("Payment mode is required.");
+        return;
+      }
+
+      const newAmount = paidSoFar + parseFloat(amount);
+      if (newAmount > totalTariff) {
+        alert("Payment exceeds total tariff.");
+        return;
+      }
+
+      rooms[room].payment = {
+        amount: newAmount,
+        date: new Date().toLocaleString(),
+        mode: mode
+      };
+
+      localStorage.setItem("rooms", JSON.stringify(rooms));
+      alert("Payment updated.");
+      renderRoomDetails();
+    }
+
+   function updateCompany() {
+  const companyList = Object.keys(companyDetails);
+  if (companyList.length === 0) {
+    alert("No company details found.");
+    return;
+  }
+
+  // Create select dropdown
+  const selectHTML = `
+    <label>Select Company</label><br/>
+    <select id="companySelect" style="width: 100%; padding: 8px; margin-top: 5px;">
+      <option value="">-- Select Company --</option>
+      ${companyList.map(name => `<option value="${name}">${name}</option>`).join('')}
+    </select>
+  `;
+
+  // Show HTML prompt using a temporary wrapper (confirm workaround)
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = selectHTML;
+
+  const modal = document.createElement("div");
+  modal.style.position = "fixed";
+  modal.style.top = "50%";
+  modal.style.left = "50%";
+  modal.style.transform = "translate(-50%, -50%)";
+  modal.style.background = "#fff";
+  modal.style.padding = "20px";
+  modal.style.border = "1px solid #ccc";
+  modal.style.zIndex = "9999";
+  modal.style.boxShadow = "0 0 15px rgba(0,0,0,0.2)";
+  modal.innerHTML = `
+    <h3>Select Company</h3>
+    ${wrapper.innerHTML}
+    <br><br>
+    <button id="saveCompanyBtn">Save</button>
+    <button id="cancelCompanyBtn" style="margin-left:10px;">Cancel</button>
+  `;
+
+  document.body.appendChild(modal);
+
+  document.getElementById("saveCompanyBtn").onclick = () => {
+    const selected = document.getElementById("companySelect").value;
+    if (!selected || !companyDetails[selected]) {
+      alert("Please select a valid company.");
+      return;
+    }
+
+    const gst = companyDetails[selected].gst;
+    const contact = companyDetails[selected].contact;
+
+    rooms[room].company = {
+      name: selected,
+      gst: gst,
+      contact: contact
+    };
+
+    localStorage.setItem("rooms", JSON.stringify(rooms));
+    document.body.removeChild(modal);
+    alert("Company updated.");
+    renderRoomDetails();
+  };
+
+  document.getElementById("cancelCompanyBtn").onclick = () => {
+    document.body.removeChild(modal);
+  };
+}
+
+function checkOutRoom() {
+  const data = rooms[room];
+  const tariff = parseFloat(data.tariff) || 0;
+  const paid = data.payment?.amount || 0;
+  const balance = tariff - paid;
+
+  if (balance > 0) {
+    alert(`Cannot checkout. ₹${balance} is still pending.`);
+    return;
+  }
+
+  // Save to checkout history
+  const checkoutRecords = JSON.parse(localStorage.getItem("checkoutRecords")) || [];
+  checkoutRecords.push({
+    room: room,
+    guestName: data.guestName,
+    mobile: data.mobile,
+    address: data.address,
+    persons: data.persons,
+    tariff: data.tariff,
+    payment: data.payment || { amount: 0, mode: '-' },
+    company: data.company || { name: '-', gst: '-' },
+    checkinTime: data.checkinTime,
+    checkoutTime: new Date().toLocaleString()
+  });
+  localStorage.setItem("checkoutRecords", JSON.stringify(checkoutRecords));
+
+  // Remove room from active rooms
+  delete rooms[room];
+  localStorage.setItem("rooms", JSON.stringify(rooms));
+
+  // Redirect to checkout.html to view the final invoice
+  window.location.href = `checkout.html?room=${room}`;
+}
+document.getElementById("checkoutRoomNumber").value = "";
+saveToStorage();
+updateRoomList();
+
+
+
+  </script>
+</body>
+</html>

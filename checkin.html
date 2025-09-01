@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hotel Room Overview</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button.checkout {
+      background-color: #e74c3c;
+    }
+
+    .room-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+    }
+
+    .room-card {
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .room-card:hover {
+      transform: scale(1.03);
+    }
+
+    .occupied {
+      color: red;
+      font-weight: bold;
+    }
+
+    .available {
+      color: green;
+      font-weight: bold;
+    }
+
+    /* Modal */
+    #modal {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 25px;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+
+    #modal h2 {
+      margin-top: 0;
+    }
+
+    #modal button {
+      margin-top: 15px;
+      background-color: #34495e;
+    }
+    #checkinForm input, #checkinForm select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+#checkinForm label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+#checkinForm .name-row {
+  display: flex;
+  gap: 10px;
+}
+
+#checkinForm .name-row select,
+#checkinForm .name-row input {
+  flex: 1;
+}
+
+  </style>
+</head>
+<body>
+
+  <h1>Hotel Room Overview</h1>
+
+  <div class="controls">
+    <button class="checkin" onclick="openCheckInModal()">🛎️ Check-In</button>
+
+    <button class="checkout" onclick="checkOut()">Check-Out</button>
+      <button class="checkin" onclick="CompanyDetails()">Company Details</button>
+  </div>
+  <!-- Check-In Modal -->
+<div id="checkinModal" style="display: none;">
+  <div style="background: white; max-width: 500px; margin: 50px auto; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.2);">
+    <h2>Guest Check-In</h2>
+    <form id="checkinForm">
+
+   <label for="title">Guest Name</label>
+<div style="display: flex; gap: 10px;">
+  <select id="title" style="width: 80px;" required>
+    <option value="Mr.">Mr.</option>
+    <option value="Mrs.">Mrs.</option>
+    <option value="Miss">Miss</option>
+    <option value="Ms.">Ms.</option>
+    <option value="Dr.">Dr.</option>
+  </select>
+  <input type="text" id="guestName" placeholder="Full Name" required style="flex: 1;" />
+</div>
+<br/><br/>
+      <select id="roomSelect" required>
+        <option value="">Select Room</option>
+        <!-- Populate dynamically -->
+          <option value="premium / 101">premium / 101</option>
+            <option value="premium / 102">premium / 102</option>
+            <option value="premium / 103">premium / 103</option>
+            <option value="premium / 201">premium / 201</option>
+            <option value="premium / 202">premium / 202</option>
+            <option value="premium / 203">premium / 203</option>
+            <option value="premium / 301">premium / 301</option>
+            <option value="premium / 302">premium / 302</option>
+            <option value="premium / 303">premium / 303</option>
+            <option value="classic / 104">classic / 104</option>
+            <option value="classic / 105">classic / 105</option>
+            <option value="classic / 204">classic / 204</option>
+            <option value="classic / 205">classic / 205</option>
+            <option value="classic / 304">classic / 304</option>
+            <option value="classic / 305">classic / 305</option>
+            <option value="classic / 403">classic / 403</option>
+            <option value="classic / 404">classic / 404</option>
+            <option value="suite / 401">suite / 401</option>
+            <option value="suite / 402">suite / 402</option>
+            <option value="suite / 501">suite / 501</option>
+      </select><br/><br/>
+      <input type="text" placeholder="Mobile" id="mobile" required /><br/><br/>
+      <input type="text" placeholder="Address" id="address" required /><br/><br/>
+      <input type="number" placeholder="No. of Persons" id="persons" required /><br/><br/>
+      <input type="number" placeholder="Tariff ₹" id="tariff" required /><br/><br/>
+      <input type="text" placeholder="Company (optional)" id="company" /><br/><br/>
+      <input type="text" placeholder="GST (optional)" id="gst" /><br/><br/>
+      <button type="submit">Submit</button>
+      <button type="button" onclick="closeCheckInModal()">Cancel</button>
+    </form>
+  </div>
+</div>
+
+
+  <!-- <div style="text-align: center; margin-bottom: 20px;">
+    <input type="text" id="checkoutRoomNumber" placeholder="Enter Room Number to Check-Out" />
+  </div> -->
+
+  <!-- Room Grid -->
+  <div class="room-grid" id="roomGrid"></div>
+
+  <!-- Modal -->
+  <div id="modal">
+    <h2>Room Details</h2>
+    <div id="modalContent"></div>
+    <button onclick="closeModal()">Close</button>
+  </div>
+
+  <script>
+    const allRooms = [
+      "premium / 101", "premium / 102", "premium / 103", "premium / 201",
+      "premium / 202", "premium / 203","premium / 301","premium / 302" ,"premium / 303","classic / 104", "classic / 105",
+      "classic / 204", "classic / 205", "classic / 304","classic / 305" ,"suite / 401", "suite / 402",
+    ];
+    function CompanyDetails(){
+      window.location.href="company.html";
+    }
+    let rooms = JSON.parse(localStorage.getItem("rooms")) || {};
+
+    function saveToStorage() {
+      localStorage.setItem("rooms", JSON.stringify(rooms));
+    }
+
+   function renderRooms() {
+  const container = document.getElementById("roomGrid");
+  container.innerHTML = "";
+
+  allRooms.forEach(room => {
+    const occupied = rooms[room];
+    const card = document.createElement("div");
+    card.className = "room-card";
+
+    card.innerHTML = `
+      <h3>${room}</h3>
+      <p class="${occupied ? 'occupied' : 'available'}">
+        ${occupied ? "Occupied" : "Available"}
+      </p>
+      ${occupied ? `<p><strong>Guest:</strong> ${occupied.guestName}</p>` : `
+        <button onclick="startCheckIn('${room}')">🛎️ Check-In</button>
+      `}
+    `;
+
+    card.onclick = () => {
+      if (occupied) {
+        window.location.href = `detail.html?room=${encodeURIComponent(room)}`;
+      }
+    };
+
+    container.appendChild(card);
+  });
+}
+function startCheckIn(roomName) {
+  const select = document.getElementById("roomSelect");
+
+  // Reset modal form
+  document.getElementById("checkinForm").reset();
+  document.getElementById("guestName").focus();
+
+  // Open modal
+  document.getElementById("checkinModal").style.display = "block";
+
+  // Populate the room dropdown
+  select.innerHTML = `<option value="${roomName}">${roomName}</option>`;
+}
+
+
+
+    function openModal(room) {
+      const data = rooms[room];
+      const content = `
+        <strong>Room:</strong> ${room}<br/>
+        <strong>Guest:</strong> ${data.guestName}<br/>
+        <strong>Mobile:</strong> ${data.mobile}<br/>
+        <strong>Address:</strong> ${data.address}<br/>
+        <strong>Persons:</strong> ${data.persons}<br/>
+        <strong>Tariff:</strong> ₹${data.tariff}<br/>
+        
+        <strong>Company:</strong> ${data.company?.name || '-'}<br/>
+        <strong>GST:</strong> ${data.company?.gst || '-'}<br/>
+        <strong>Check-In:</strong> ${data.checkinTime}
+      `;
+      document.getElementById("modalContent").innerHTML = content;
+      document.getElementById("modal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("modal").style.display = "none";
+    }
+
+    function openCheckInModal() {
+  // Populate available rooms
+  const select = document.getElementById("roomSelect");
+  select.innerHTML = '<option value="">Select Room</option>';
+
+  allRooms.forEach(room => {
+    if (!rooms[room]) {
+      const option = document.createElement("option");
+      option.value = room;
+      option.textContent = room;
+      select.appendChild(option);
+    }
+  });
+
+  document.getElementById("checkinModal").style.display = "block";
+}
+
+function closeCheckInModal() {
+  document.getElementById("checkinModal").style.display = "none";
+  document.getElementById("checkinForm").reset();
+}
+
+document.getElementById("checkinForm").onsubmit = function (e) {
+  e.preventDefault();
+
+ const title = document.getElementById("title").value;
+const guestName = `${title} ${document.getElementById("guestName").value}`;
+
+  const roomNumber = document.getElementById("roomSelect").value;
+  const mobile = document.getElementById("mobile").value;
+  const address = document.getElementById("address").value;
+  const persons = document.getElementById("persons").value;
+  const tariff = document.getElementById("tariff").value;
+  const company = document.getElementById("company").value;
+  const gst = document.getElementById("gst").value;
+
+  if (!guestName || !roomNumber || !mobile || !address || !persons || !tariff) {
+    alert("Please fill all required fields.");
+    return;
+  }
+
+  rooms[roomNumber] = {
+    guestName,
+    mobile,
+    address,
+    persons,
+    tariff,
+    company: company ? { name: company, gst: gst } : null,
+    checkinTime: new Date().toLocaleString()
+  };
+
+  saveToStorage();
+  renderRooms();
+  closeCheckInModal();
+};
+
+    function checkOut() {
+     window.location.href="checkout.html";
+    }
+
+    // Initialize
+    renderRooms();
+  </script>
+</body>
+</html>
