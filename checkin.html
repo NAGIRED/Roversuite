@@ -202,7 +202,8 @@
       "classic / 204", "classic / 205", "classic / 304","classic / 305" ,"suite / 401", "suite / 402",
     ];
     function CompanyDetails(){
-      window.location.href="Company.html";
+      // window.location.href="Company.html";
+       window.location.href = `Company.html?room=${encodeURIComponent(room)}`;
     }
     let rooms = JSON.parse(localStorage.getItem("rooms")) || {};
 
@@ -341,4 +342,5 @@ const guestName = `${title} ${document.getElementById("guestName").value}`;
   </script>
 </body>
 </html>
+
 
